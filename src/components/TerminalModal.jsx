@@ -159,7 +159,7 @@ export default function TerminalModal({ isOpen, onClose, playClickSound }) {
           }}
         >
           <span style={{ color: '#111111', fontWeight: 900, marginRight: '10px', fontFamily: 'var(--font-mono)' }}>
-            C:\> 
+              {'C:\\>'} 
           </span>
           <input
             type="text"
