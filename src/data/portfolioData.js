@@ -180,7 +180,7 @@ export const PORTFOLIO_DATA = {
       ],
       tech: ["FastAPI", "Next.js", "SQLite", "SQLAlchemy", "React"],
       github: "https://github.com/rakshita1802/Pet-care-Management-system",
-      live: "#",
+      live: "https://petpaws-management.netlify.app",
       stats: "RESTful CRUD APIs"
     },
     {
