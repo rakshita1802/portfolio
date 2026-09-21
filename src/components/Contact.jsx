@@ -16,36 +16,47 @@ export default function Contact({ playClickSound }) {
     setTimeout(() => setCopiedEmail(false), 2500);
   };
 
-  const encode = (data) => {
-    return Object.keys(data)
-      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-      .join("&");
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (playClickSound) playClickSound();
 
-    fetch("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: encode({ "form-name": "contact", ...formData })
-    })
-      .then(() => {
-        // Trigger confetti celebration
-        confetti({
-          particleCount: 60,
-          spread: 70,
-          origin: { y: 0.7 }
-        });
+    // Web3Forms endpoint for Vercel deployment
+    const formPayload = {
+      ...formData,
+      access_key: "YOUR_WEB3FORMS_ACCESS_KEY" // Needs to be replaced by the user
+    };
 
-        setSubmitted(true);
-        setTimeout(() => {
-          setSubmitted(false);
-          setFormData({ name: '', email: '', subject: '', message: '' });
-        }, 5000);
+    fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(formPayload)
+    })
+      .then(async (response) => {
+        let json = await response.json();
+        if (response.status === 200) {
+          // Trigger confetti celebration
+          confetti({
+            particleCount: 60,
+            spread: 70,
+            origin: { y: 0.7 }
+          });
+          setSubmitted(true);
+          setTimeout(() => {
+            setSubmitted(false);
+            setFormData({ name: '', email: '', subject: '', message: '' });
+          }, 5000);
+        } else {
+          console.log(response);
+          alert("Error sending message: " + json.message);
+        }
       })
-      .catch(error => console.error("Form submission error:", error));
+      .catch(error => {
+        console.error("Form submission error:", error);
+        alert("Something went wrong!");
+      });
   };
 
   return (
