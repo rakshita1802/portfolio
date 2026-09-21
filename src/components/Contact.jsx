@@ -23,7 +23,7 @@ export default function Contact({ playClickSound }) {
     // Web3Forms endpoint for Vercel deployment
     const formPayload = {
       ...formData,
-      access_key: "YOUR_WEB3FORMS_ACCESS_KEY" // Needs to be replaced by the user
+      access_key: "b26ca324-0f96-4fc8-9daa-0c3a6aab4343" 
     };
 
     fetch("https://api.web3forms.com/submit", {
