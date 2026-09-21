@@ -144,7 +144,12 @@ export default function Preloader({ onComplete }) {
             textTransform: 'uppercase'
           }}
         >
-          {progress < 100 ? "ASSEMBLING MODULES..." : "SYSTEM ONLINE."}
+          {progress === 0 && "INITIALIZING PROTOCOLS..."}
+          {progress === 18 && "ASSEMBLING MODULES..."}
+          {progress === 42 && "CONNECTING TO DATABASE..."}
+          {progress === 67 && "LOADING UI ASSETS..."}
+          {progress === 89 && "FINALIZING BOOT SEQUENCE..."}
+          {progress === 100 && "SYSTEM ONLINE."}
         </div>
       </div>
 

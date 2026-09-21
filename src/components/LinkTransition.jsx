@@ -41,7 +41,7 @@ export default function LinkTransition({ isTransitioning }) {
         }}
       >
         <div className="transition-logo">
-          NAVIGATING
+          EXECUTING
         </div>
       </div>
       
