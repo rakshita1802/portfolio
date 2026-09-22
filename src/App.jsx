@@ -13,6 +13,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import TerminalModal from './components/TerminalModal';
 import LinkTransition from './components/LinkTransition';
+import AiAgent from './components/AiAgent';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -120,6 +121,9 @@ export default function App() {
         onClose={() => setTerminalOpen(false)}
         playClickSound={playClickSound}
       />
+
+      {/* Floating AI Agent Chat */}
+      <AiAgent />
     </div>
   );
 }
