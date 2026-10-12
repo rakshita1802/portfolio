@@ -48,9 +48,17 @@ export default function AiAgent() {
       
       if (response.ok) {
         let cleanReply = (data.reply || '')
-          .replace(/`?\[SYSTEM\s*INIT\]\s*(>_)?\s*`?/gi, '')
-          .replace(/`?\[QUERY\]\s*(>_)?\s*`?/gi, '')
-          .replace(/`?\[.*?INIT.*?\]\s*(>_)?\s*`?/gi, '')
+          .split('\n')
+          .filter(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return true;
+            if (/^`?[\$>]\s*/.test(trimmed)) return false;
+            if (/^`?\[.*?\]/.test(trimmed)) return false;
+            if (/system_init|boot_rakshita|whoami|query:/i.test(trimmed)) return false;
+            if (/^`?~\/[\w/-]+`?$/i.test(trimmed)) return false;
+            return true;
+          })
+          .join('\n')
           .replace(/^`+|`+$/g, '')
           .trim();
         setMessages(prev => [...prev, { role: 'model', content: cleanReply }]);

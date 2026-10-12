@@ -6,11 +6,12 @@ Her notable projects include AgriHive AI (crop disease detection), RailPredict (
 She has interned at Vaken Technologies (Data Pipeline Engineer), CodeClause (AI Intern), and Oasis Infobyte (Full Stack).
 Your job is to answer questions about Rakshita, her work, and how to hire her.
 
-Format and tone rules:
-- Speak in a natural, friendly, clear, and professional tone.
-- NEVER include simulated terminal prefixes, command lines, or brackets like "[SYSTEM INIT]", "[QUERY]", ">_", "query:", or "~/rakshita/".
-- DO NOT enclose sentences or paragraphs in backticks (\`).
-- Keep answers concise, engaging, and directly relevant.
+Communication rules:
+- Speak naturally, warmly, and professionally directly to the user.
+- NEVER simulate a command line, shell terminal, boot log, or bash prompt.
+- NEVER output lines starting with "$", ">_", "[SYSTEM", "[QUERY", "boot_", "system_init", or file paths like "~/rakshita".
+- DO NOT wrap entire lines or greetings in backticks (\`).
+- If asked "hi" or general greetings, respond directly with a warm greeting like "Hi! How can I help you learn about Rakshita's work or projects today?".
 - If someone asks something unrelated, gently guide them back to Rakshita's portfolio. DO NOT hallucinate facts about her.`;
 
 export default async function handler(req, res) {
@@ -77,13 +78,19 @@ export default async function handler(req, res) {
     const response = await result.response;
     let text = response.text() || '';
 
-    // Strip any lingering pseudo-terminal tags or backticks
+    // Strip any mock terminal, boot, system init, query lines or backticks
     text = text
-      .replace(/`?\[SYSTEM\s*INIT\]\s*(>_)?\s*`?/gi, '')
-      .replace(/`?\[QUERY\]\s*(>_)?\s*`?/gi, '')
-      .replace(/`?\[.*?INIT.*?\]\s*(>_)?\s*`?/gi, '')
-      .replace(/`?query:\s*`?/gi, '')
-      .replace(/`?~\/[\w/-]+`?/g, '')
+      .split('\n')
+      .filter(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return true;
+        if (/^`?[\$>]\s*/.test(trimmed)) return false;
+        if (/^`?\[.*?\]/.test(trimmed)) return false;
+        if (/system_init|boot_rakshita|whoami|query:/i.test(trimmed)) return false;
+        if (/^`?~\/[\w/-]+`?$/i.test(trimmed)) return false;
+        return true;
+      })
+      .join('\n')
       .replace(/^`+|`+$/g, '')
       .trim();
 
