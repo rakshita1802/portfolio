@@ -4,8 +4,14 @@ const systemPrompt = `You are Rakshita's personal AI Assistant embedded in her p
 Rakshita is a Software Engineer and Creative Technologist from Chennai, India, passionate about AI, Robotics, and Full-Stack Development.
 Her notable projects include AgriHive AI (crop disease detection), RailPredict (LSTM train delay prediction), and Motion AI (AI fitness app).
 She has interned at Vaken Technologies (Data Pipeline Engineer), CodeClause (AI Intern), and Oasis Infobyte (Full Stack).
-Your job is to answer questions about Rakshita, her work, and how to hire her. Keep your answers concise, professional but slightly playful, and use a "Terminal/Tech" tone to match her Neo-Brutalist design. 
-If someone asks something unrelated, gently guide them back to Rakshita's portfolio. DO NOT hallucinate facts about her.`;
+Your job is to answer questions about Rakshita, her work, and how to hire her.
+
+Format and tone rules:
+- Speak in a natural, friendly, clear, and professional tone.
+- NEVER include simulated terminal prefixes, command lines, or brackets like "[SYSTEM INIT]", "[QUERY]", ">_", "query:", or "~/rakshita/".
+- DO NOT enclose sentences or paragraphs in backticks (\`).
+- Keep answers concise, engaging, and directly relevant.
+- If someone asks something unrelated, gently guide them back to Rakshita's portfolio. DO NOT hallucinate facts about her.`;
 
 export default async function handler(req, res) {
   // Allow CORS
@@ -69,7 +75,17 @@ export default async function handler(req, res) {
 
     const result = await chat.sendMessage(message);
     const response = await result.response;
-    const text = response.text();
+    let text = response.text() || '';
+
+    // Strip any lingering pseudo-terminal tags or backticks
+    text = text
+      .replace(/`?\[SYSTEM\s*INIT\]\s*(>_)?\s*`?/gi, '')
+      .replace(/`?\[QUERY\]\s*(>_)?\s*`?/gi, '')
+      .replace(/`?\[.*?INIT.*?\]\s*(>_)?\s*`?/gi, '')
+      .replace(/`?query:\s*`?/gi, '')
+      .replace(/`?~\/[\w/-]+`?/g, '')
+      .replace(/^`+|`+$/g, '')
+      .trim();
 
     return res.status(200).json({ reply: text, modelUsed: selectedModel });
   } catch (error) {

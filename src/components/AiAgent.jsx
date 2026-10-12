@@ -6,7 +6,7 @@ export default function AiAgent() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'model', content: "SYSTEM ONLINE. I'm Rakshita's AI Assistant. What would you like to know about her work?" }
+    { role: 'model', content: "Hey! I'm Rakshita's AI Assistant. What would you like to know about her work or projects?" }
   ]);
   
   const messagesEndRef = useRef(null);
@@ -47,7 +47,13 @@ export default function AiAgent() {
       const data = await response.json();
       
       if (response.ok) {
-        setMessages(prev => [...prev, { role: 'model', content: data.reply }]);
+        let cleanReply = (data.reply || '')
+          .replace(/`?\[SYSTEM\s*INIT\]\s*(>_)?\s*`?/gi, '')
+          .replace(/`?\[QUERY\]\s*(>_)?\s*`?/gi, '')
+          .replace(/`?\[.*?INIT.*?\]\s*(>_)?\s*`?/gi, '')
+          .replace(/^`+|`+$/g, '')
+          .trim();
+        setMessages(prev => [...prev, { role: 'model', content: cleanReply }]);
       } else {
         setMessages(prev => [...prev, { role: 'model', content: "ERROR: " + (data.error || "Communication failure.") }]);
       }
