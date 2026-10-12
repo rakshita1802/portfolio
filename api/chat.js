@@ -35,9 +35,31 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    // Dynamically detect supported models for this API key
+    let selectedModel = 'gemini-2.5-flash';
+    try {
+      const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (modelsRes.ok) {
+        const modelsData = await modelsRes.json();
+        const available = (modelsData.models || [])
+          .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+          .map(m => m.name.replace('models/', ''));
+        
+        const preferred = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-pro'];
+        const found = preferred.find(p => available.includes(p));
+        if (found) {
+          selectedModel = found;
+        } else if (available.length > 0) {
+          selectedModel = available[0];
+        }
+      }
+    } catch (modelErr) {
+      console.warn('Could not auto-detect model:', modelErr);
+    }
+
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: selectedModel,
       systemInstruction: systemPrompt 
     });
 
@@ -49,7 +71,7 @@ export default async function handler(req, res) {
     const response = await result.response;
     const text = response.text();
 
-    return res.status(200).json({ reply: text });
+    return res.status(200).json({ reply: text, modelUsed: selectedModel });
   } catch (error) {
     console.error('Gemini API Error:', error);
     return res.status(500).json({ error: error.message || 'Failed to communicate with AI' });
